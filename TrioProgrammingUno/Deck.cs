@@ -41,6 +41,32 @@ namespace TrioProgrammingUno
             }
         }
         public List<Card> CardDeck { get; set; } = new List<Card>();
+
+        Random rng = new Random();
+        public void ShuffleDeck()
+        {
+            List<Card> shuffledCards = this.CardDeck.OrderBy(c => rng.Next()).ToList();
+            CardDeck = shuffledCards;
+            }
+
+        //public override string ToString()
+        //{
+        //    string cardListString = "";
+        //    foreach (Card card in CardDeck)
+        //    {
+        //        cardListString += $"{card.CardSymbol} {card.CardColor} {Environment.NewLine}";
+        //    }
+        //    return cardListString;
+        //}
+
+        public void PrintDeck()
+        {
+            foreach (Card card in CardDeck)
+            {
+                Console.WriteLine(card.ToString());
+            }
+        }
+
     }
     
 }
