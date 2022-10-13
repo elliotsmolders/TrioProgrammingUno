@@ -11,10 +11,13 @@ namespace TrioProgrammingUno.Business
             this.deck = deck;
         }
 
+        public Player CurrentPlayer { get; set; }
+
         public int PlayerAmount { get; set; }
         public List<Player> ListOfPlayers { get; set; } = new();
         public List<Card> DiscardPile { get; set; } = new();
         private Deck deck { get; set; }
+
 
         public void DisplayMenu(MenuOptions choice)
         {
@@ -50,6 +53,7 @@ namespace TrioProgrammingUno.Business
         {
             for (int i = 0; i < PlayerAmount; i++)
             {
+                Console.WriteLine($"Enter player {i+1}'s name:");
                 Player player = new(Console.ReadLine());
                 ListOfPlayers.Add(player);
             }
@@ -82,29 +86,49 @@ namespace TrioProgrammingUno.Business
 
         public void Run()
         {
-            Play();
+            PlayerTurn();
             bool won = CheckWinCondition();
         }
 
-        private void CheckWinCondition()
+        private bool CheckWinCondition()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
-        private void Play()
+        private void PlayerTurn(Player currentPlayer)
         {
+            CurrentPlayer = currentPlayer; 
+
+
             CheckForPlayableCard();
+            ShowHand();
             SelectCard();
             CheckForEmptyHand();
         }
 
-        private void CheckForEmptyHand()
+        private bool CompareTwoCards(Card card1, Card card2)
         {
-            throw new NotImplementedException();
+            if (card1.CardSymbol == card2.CardSymbol || card1.CardColor == card2.CardColor || card1.CardColor == Color.Black)
+            {
+                return true;
+            }
+            return false;
+        } 
+
+        private void ShowHand()
+        {
+            foreach (Card card in CurrentPlayer.Hand)
+            {
+                Console.WriteLine(card.ToString());
+            }
         }
 
-        private void CheckForPlayableCard()
+        private bool CheckForEmptyHand() => CurrentPlayer.Hand.Count == 0;
+
+
+        private bool CheckForPlayableCard()
         {
+            throw new NotImplementedException();
         }
 
         private void SelectCard()
