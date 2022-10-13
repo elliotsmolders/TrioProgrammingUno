@@ -9,5 +9,6 @@ internal class Program
         Deck deck = new();
         GameEngine engine = new GameEngine(deck);
         engine.Init(0);
+        engine.Run();
     }
 }

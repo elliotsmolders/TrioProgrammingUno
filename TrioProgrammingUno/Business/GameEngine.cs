@@ -12,7 +12,8 @@ namespace TrioProgrammingUno.Business
         }
 
         public int PlayerAmount { get; set; }
-        public List<Player> ListOfPlayers { get; set; } = new List<Player>();
+        public List<Player> ListOfPlayers { get; set; } = new();
+        public List<Card> DiscardPile { get; set; } = new();
         private Deck deck { get; set; }
 
         public void DisplayMenu(MenuOptions choice)
@@ -70,27 +71,53 @@ namespace TrioProgrammingUno.Business
         {
             DisplayMenu(choice);
             deck.ShuffleDeck();
-            Console.WriteLine(deck.CardDeck.Count);
-
             foreach (Player player in ListOfPlayers)
             {
-                DrawCards(deck, player, AmountOfInitialCards);
+                DrawCards(deck.CardDeck, player, AmountOfInitialCards);
             }
-            Console.WriteLine(deck.CardDeck.Count);
-            Play();
+            DiscardPile.Add(deck.CardDeck[0]);
+            deck.CardDeck.RemoveAt(0);
             //Debugtime();
+        }
+
+        public void Run()
+        {
+            Play();
+            bool won = CheckWinCondition();
+        }
+
+        private void CheckWinCondition()
+        {
+            throw new NotImplementedException();
         }
 
         private void Play()
         {
+            CheckForPlayableCard();
+            SelectCard();
+            CheckForEmptyHand();
         }
 
-        public void DrawCards(Deck deck, Player player, int amountOfCards)
+        private void CheckForEmptyHand()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void CheckForPlayableCard()
+        {
+        }
+
+        private void SelectCard()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DrawCards(List<Card> cards, Player player, int amountOfCards)
         {
             for (int i = 0; i < amountOfCards; i++)
             {
-                player.Hand.Add(deck.CardDeck[0]);
-                deck.CardDeck.RemoveAt(0);
+                player.Hand.Add(cards[0]);
+                cards.RemoveAt(0);
             }
         }
     }
