@@ -70,11 +70,19 @@ namespace TrioProgrammingUno.Business
         {
             DisplayMenu(choice);
             deck.ShuffleDeck();
+            Console.WriteLine(deck.CardDeck.Count);
+
             foreach (Player player in ListOfPlayers)
             {
                 DrawCards(deck, player, AmountOfInitialCards);
             }
-            Debugtime();
+            Console.WriteLine(deck.CardDeck.Count);
+            Play();
+            //Debugtime();
+        }
+
+        private void Play()
+        {
         }
 
         public void DrawCards(Deck deck, Player player, int amountOfCards)
