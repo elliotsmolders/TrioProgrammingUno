@@ -86,7 +86,7 @@ namespace TrioProgrammingUno.Business
 
         public void Run()
         {
-            PlayerTurn();
+            PlayerTurn(ListOfPlayers[0]);
             bool won = CheckWinCondition();
         }
 
@@ -97,16 +97,25 @@ namespace TrioProgrammingUno.Business
 
         private void PlayerTurn(Player currentPlayer)
         {
-            CurrentPlayer = currentPlayer; 
-
+            CurrentPlayer = currentPlayer;
+            ShowGameState();
 
             CheckForPlayableCard();
             ShowHand();
-            SelectCard();
+            //SelectCard();
             CheckForEmptyHand();
+
         }
 
-        private bool CompareTwoCards(Card card1, Card card2)
+
+
+        private void ShowGameState()
+        {
+            Console.WriteLine($"{CurrentPlayer} is aan de beurt:");
+            Console.WriteLine($"Huidige kaart op tafel: {Environment.NewLine} --{DiscardPile[0]}--");
+        }
+
+        public bool CompareTwoCards(Card card1, Card card2)
         {
             if (card1.CardSymbol == card2.CardSymbol || card1.CardColor == card2.CardColor || card1.CardColor == Color.Black)
             {
@@ -119,21 +128,27 @@ namespace TrioProgrammingUno.Business
         {
             foreach (Card card in CurrentPlayer.Hand)
             {
-                Console.WriteLine(card.ToString());
+                Console.Write(card.ToString() + ", " );
             }
         }
 
         private bool CheckForEmptyHand() => CurrentPlayer.Hand.Count == 0;
 
 
-        private bool CheckForPlayableCard()
+        public bool CheckForPlayableCard()
         {
-            throw new NotImplementedException();
+
+        List<Card> playableCards = CurrentPlayer.Hand.Where(x => CompareTwoCards(x, DiscardPile[0] )).ToList();
+            Console.WriteLine("uw speelbare kaarten zijn:");
+            foreach (Card card in playableCards)
+            {
+                Console.WriteLine(card.ToString());
+            } return true;  
         }
 
         private void SelectCard()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public void DrawCards(List<Card> cards, Player player, int amountOfCards)

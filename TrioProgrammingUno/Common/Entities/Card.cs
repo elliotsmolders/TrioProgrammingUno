@@ -20,7 +20,7 @@ namespace TrioProgrammingUno.Business
 
         public override string ToString()
         {
-            return $"Type: {CardSymbol} Color: {CardColor}";
+            return $" {CardSymbol} - {CardColor} ";
         }
     }
 }
