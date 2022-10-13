@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TrioProgrammingUno.Common.Enums;
 
-namespace TrioProgrammingUno
+namespace TrioProgrammingUno.Business
 {
     public class Deck
     {
         private int numberOfSpecials = 4;
+
         public Deck()
         {
             //add 0-9 every color
@@ -21,7 +18,6 @@ namespace TrioProgrammingUno
                         CardDeck.Add(new Card(i.ToString(), color));
                     }
                 }
-               
             }
             // add specials with color
             foreach (Color color in Enum.GetValues(typeof(Color)))
@@ -40,14 +36,16 @@ namespace TrioProgrammingUno
                 }
             }
         }
+
         public List<Card> CardDeck { get; set; } = new List<Card>();
 
-        Random rng = new Random();
+        private Random rng = new Random();
+
         public void ShuffleDeck()
         {
-            List<Card> shuffledCards = this.CardDeck.OrderBy(c => rng.Next()).ToList();
+            List<Card> shuffledCards = CardDeck.OrderBy(c => rng.Next()).ToList();
             CardDeck = shuffledCards;
-            }
+        }
 
         //public override string ToString()
         //{
@@ -66,7 +64,5 @@ namespace TrioProgrammingUno
                 Console.WriteLine(card.ToString());
             }
         }
-
     }
-    
 }

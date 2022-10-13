@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TrioProgrammingUno.Common.Enums;
 
-namespace TrioProgrammingUno
+namespace TrioProgrammingUno.Business
 {
     public class Card
     {
-
-
         public Card(string symbol, Color color)
         {
-           CardSymbol = symbol;
-           CardColor = color;
+            CardSymbol = symbol;
+            CardColor = color;
         }
+
         public Card(string symbol)
         {
             CardSymbol = symbol;
-
         }
 
         public string CardSymbol { get; set; }
@@ -29,6 +23,4 @@ namespace TrioProgrammingUno
             return $"Type: {CardSymbol} Color: {CardColor}";
         }
     }
-
-
 }

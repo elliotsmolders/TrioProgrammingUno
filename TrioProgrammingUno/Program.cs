@@ -1,18 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using TrioProgrammingUno;
+using TrioProgrammingUno.Business;
+using TrioProgrammingUno.Common.Enums;
 
-
-
-
-GameEngine engine = new GameEngine();
-Deck deck1 = new();
-
-deck1.ShuffleDeck();
-
-engine.DisplayMenu(MenuOptions.AmountOfPlayers);
-
-
-
-
-
-
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        Deck deck = new();
+        GameEngine engine = new GameEngine(deck);
+        engine.Init(0);
+    }
+}

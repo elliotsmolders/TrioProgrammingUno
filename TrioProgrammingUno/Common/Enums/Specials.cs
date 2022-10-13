@@ -4,14 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrioProgrammingUno
+namespace TrioProgrammingUno.Common.Enums
 {
-    public enum Color
+    public enum Specials
     {
-        Black = 0,
-        Red,
-        Green,
-        Blue,
-        Yellow
+        Stop,
+        Add2
     }
 }

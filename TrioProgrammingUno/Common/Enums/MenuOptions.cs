@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrioProgrammingUno
+namespace TrioProgrammingUno.Common.Enums
 {
-    public enum ColorlessSpecials
+    public enum MenuOptions
     {
-        Add4,
-        ChangeColor
+        AmountOfPlayers,
+        PlayerNames
     }
 }
