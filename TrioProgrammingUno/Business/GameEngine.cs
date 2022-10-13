@@ -71,6 +71,13 @@ namespace TrioProgrammingUno.Business
             }
         }
 
+        private void PlayCard(int indexOfCard)
+        {
+            DiscardPile.Add(CurrentPlayer.Hand[indexOfCard]);
+            CurrentPlayer.Hand.RemoveAt(indexOfCard);
+
+       
+        }
         public void Init(MenuOptions choice)
         {
             DisplayMenu(choice);
@@ -102,12 +109,35 @@ namespace TrioProgrammingUno.Business
 
             CheckForPlayableCard();
             ShowHand();
-            //SelectCard();
+            SelectCard();
             CheckForEmptyHand();
 
         }
 
+        private void handleDrawnCard()
+        {
 
+            DrawCards(deck.CardDeck, CurrentPlayer, 1);
+            Console.WriteLine($"Uw getrokken kaart is {CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1]}");
+            if (CompareTwoCards(CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1], DiscardPile[0]))
+            {
+
+                char answer = ' ';
+
+                while (Char.ToUpper(answer) != 'Y' || Char.ToUpper(answer) != 'N')
+                {
+                    Console.WriteLine("Deze kaart is speelbaar, wil je hem spelen? Y ? N");
+                    answer = (char)Console.Read();
+                    
+                }
+
+                if (Char.ToUpper(answer) == 'Y')
+                {
+
+                }
+               
+            }
+        }
 
         private void ShowGameState()
         {
@@ -148,7 +178,20 @@ namespace TrioProgrammingUno.Business
 
         private void SelectCard()
         {
-            //throw new NotImplementedException();
+            Console.WriteLine($"Kies een kaart 1 tot {CurrentPlayer.Hand.Count()} om te spelen, of trek een kaart met 0");
+            int choice;
+            bool validInput;
+            do
+            {
+            validInput = int.TryParse(Console.ReadLine(), out choice);
+            } while (validInput);
+
+            if (choice == 0)
+            {
+              handleDrawnCard();
+            } 
+
+
         }
 
         public void DrawCards(List<Card> cards, Player player, int amountOfCards)

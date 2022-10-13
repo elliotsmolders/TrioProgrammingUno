@@ -17,5 +17,6 @@ internal class Program
 
         //Console.WriteLine(engine.CompareTwoCards(kaart1, kaart3)); 
 
+
     }
 }
