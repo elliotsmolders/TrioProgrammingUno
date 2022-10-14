@@ -22,15 +22,18 @@ namespace TrioProgrammingUno.Business
             // add specials with color
             foreach (Color color in Enum.GetValues(typeof(Color)))
             {
-                foreach (Specials special in Enum.GetValues(typeof(Specials)))
+                if (color != Color.Black)
                 {
-                    CardDeck.Add(new Card(special.ToString(), color));
+                    foreach (Specials special in Enum.GetValues(typeof(Specials)))
+                    {
+                        CardDeck.Add(new Card(special.ToString(), color));
+                    }
                 }
             }
-            // add colourless specials
+            // add black specials
             for (int i = 0; i < numberOfSpecials; i++)
             {
-                foreach (ColorlessSpecials colorlessSpecial in Enum.GetValues(typeof(ColorlessSpecials)))
+                foreach (BlackSpecials colorlessSpecial in Enum.GetValues(typeof(BlackSpecials)))
                 {
                     CardDeck.Add(new Card(colorlessSpecial.ToString()));
                 }

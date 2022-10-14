@@ -22,99 +22,6 @@ namespace TrioProgrammingUno.Business
         public bool PlayDirectionClockwise { get; set; }
         public bool SkipTurn { get; set; }
 
-        public void DisplayMenu(MenuOptions choice)
-        {
-            switch (choice)
-            {
-                case MenuOptions.AmountOfPlayers:
-                    PlayerAmount = AskForPlayers();
-                    MakePlayers();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        //TODO: Dus, refactor = guard steken in property setter.
-        private int AskForPlayers()
-        {
-            int players = 0;
-            bool validInput = false;
-            Console.WriteLine("Kies 1 tot 4 spelers");
-            validInput = int.TryParse(Console.ReadLine(), out players);
-
-            if (players <= 0 || players > 4 && validInput == false)
-            {
-                Console.WriteLine("Please enter a valid input");
-                return AskForPlayers();
-            }
-            return players;
-        }
-
-        private void MakePlayers()
-        {
-            for (int i = 0; i < PlayerAmount; i++)
-            {
-                Console.WriteLine($"Enter player {i+1}'s name:");
-                Player player = new(Console.ReadLine());
-                ListOfPlayers.Add(player);
-            }
-        }
-
-        public void Debugtime()
-        {
-            foreach (var player in ListOfPlayers)
-            {
-                Console.WriteLine(player.Name);
-                foreach (Card card in player.Hand)
-                {
-                    Console.WriteLine(card.CardSymbol + "" + card.CardColor);
-                }
-            }
-        }
-
-        private void PlayCard(int indexOfCard)
-        {
-            CurrentSymbol = CurrentPlayer.Hand[indexOfCard].CardSymbol;
-            //card effect?
-            if (CurrentPlayer.Hand[indexOfCard].CardColor == Color.Black)
-            {
-                ChangeColorToPlayerChoice();
-            }
-            else
-            {
-                CurrentColor = CurrentPlayer.Hand[indexOfCard].CardColor;
-            }
-            DiscardPile.Add(CurrentPlayer.Hand[indexOfCard]);
-            CurrentPlayer.Hand.RemoveAt(indexOfCard);
-        }
-
-
-        //need to format cw
-        public void ChangeColorToPlayerChoice()
-        {
-            int i = 1;
-            Console.WriteLine("Choose a color:");
-            foreach (Color color in Enum.GetValues(typeof(Color)))
-            {
-                if(color != Color.Black)
-                {
-                    Console.Write($"{i}: {color}");
-                    i++;
-                }
-            }
-            int answer = 0;
-            bool validInput = false;
-
-            while (answer<=0 || answer> Enum.GetNames(typeof(Color)).Length || !validInput)
-            {
-                validInput = int.TryParse(Console.ReadLine(), out answer);
-            }
-            CurrentColor = (Color)answer;
-
-        }
-
         public void Init(MenuOptions choice)
         {
             PlayDirectionClockwise = true;
@@ -139,36 +46,87 @@ namespace TrioProgrammingUno.Business
             while (true)
             {
                 PlayerTurn(ListOfPlayers[indexOfCurrentPlayer]);
-                if (PlayDirectionClockwise)
+                indexOfCurrentPlayer = GetNextPlayerIndex();
+            }
+        }
+
+        public void DisplayMenu(MenuOptions choice)
+        {
+            switch (choice)
+            {
+                case MenuOptions.AmountOfPlayers:
+                    PlayerAmount = AskForPlayers();
+                    MakePlayers();
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private int GetNextPlayerIndex()
+        {
+            int indexOfPlayer = ListOfPlayers.IndexOf(CurrentPlayer);
+            if (PlayDirectionClockwise)
+            {
+                if (indexOfPlayer < (ListOfPlayers.Count - 1))
                 {
-                    if (!(indexOfCurrentPlayer < (ListOfPlayers.Count-1)))
-                    {
-                        indexOfCurrentPlayer++;
-                    }
-                    else
-                    {
-                        indexOfCurrentPlayer = 0;
-                    }
+                    indexOfPlayer++;
                 }
                 else
                 {
-                    if(indexOfCurrentPlayer!=0){
-                        indexOfCurrentPlayer--;
-
-                    }
-                    else
-                    {
-                        indexOfCurrentPlayer = ListOfPlayers.Count() - 1;
-                    }
+                    indexOfPlayer = 0;
                 }
             }
-
+            else
+            {
+                if (indexOfPlayer != 0)
+                {
+                    indexOfPlayer--;
+                }
+                else
+                {
+                    indexOfPlayer = ListOfPlayers.Count() - 1;
+                }
+            }
+            return indexOfPlayer;
         }
 
+        //TODO: Dus, refactor = guard steken in property setter.
+        private int AskForPlayers()
+        {
+            int players = 0;
+            bool validInput = false;
+            Console.WriteLine("Choose 2 to 4 players");
+            validInput = int.TryParse(Console.ReadLine(), out players);
 
+            if (players <= 1 || players > 4 && validInput == false)
+            {
+                Console.WriteLine("Please enter a valid input");
+                return AskForPlayers();
+            }
+            return players;
+        }
+
+        private void MakePlayers()
+        {
+            for (int i = 0; i < PlayerAmount; i++)
+            {
+                Console.WriteLine($"Enter player {i + 1}'s name:");
+                Player player = new(Console.ReadLine());
+                ListOfPlayers.Add(player);
+            }
+        }
 
         private void PlayerTurn(Player currentPlayer)
         {
+            if (SkipTurn)
+            {
+                Console.WriteLine($"{CurrentPlayer.Name} has been skipped");
+                SkipTurn = false;
+                return;
+            }
+            Console.Clear();
             CurrentPlayer = currentPlayer;
             ShowGameState();
             ShowHand();
@@ -181,40 +139,152 @@ namespace TrioProgrammingUno.Business
             {
                 handleDrawCard();
             }
+        }
 
+        private void ShowGameState()
+        {
+            Console.WriteLine($"It's {CurrentPlayer.Name} turn:");
+            Console.WriteLine($"Current card on the table: {Environment.NewLine} =*{CurrentSymbol}|{CurrentColor}*=");
+        }
 
+        private void ShowHand()
+        {
+            foreach (Card card in CurrentPlayer.Hand)
+            {
+                Console.Write(card.ToString() + ", ");
+            }
+        }
 
+        public bool CheckForPlayableCard()
+        {
+            List<Card> playableCards = CurrentPlayer.Hand.Where(x => IsCardPlayable(x)).ToList();
+            if (playableCards.Count() != 0)
+            {
+                Console.WriteLine("Your playable cards are:");
+                foreach (Card card in playableCards)
+                {
+                    Console.WriteLine(card.ToString());
+                }
+                return true;
+            }
+            Console.WriteLine("No playable card in your hand!");
+            return false;
+        }
+
+        private void SelectCard()
+        {
+            Console.WriteLine($"Choose a card from 1 to {CurrentPlayer.Hand.Count()} to play, of trek een kaart met 0");
+            int choice;
+            bool validInput;
+            do
+            {
+                validInput = int.TryParse(Console.ReadLine(), out choice);
+            } while (!validInput || choice < 0 || choice > CurrentPlayer.Hand.Count());
+
+            if (choice == 0)
+            {
+                handleDrawCard();
+                return;
+            }
+            else
+            {
+                if (IsCardPlayable(CurrentPlayer.Hand[choice - 1]))
+                {
+                    PlayCard(choice - 1);
+                    return;
+                }
+                SelectCard();
+                Console.Clear();
+                ShowGameState();
+                ShowHand();
+                return;
+            }
+        }
+
+        private void PlayCard(int indexOfCard)
+        {
+            HandleSpecial(CurrentPlayer.Hand[indexOfCard]);
+            Console.WriteLine($" {CurrentPlayer.Name} has played {CurrentPlayer.Hand[indexOfCard]}");
+            CurrentSymbol = CurrentPlayer.Hand[indexOfCard].CardSymbol;
+            //card effect?
+            if (CurrentPlayer.Hand[indexOfCard].CardColor == Color.Black)
+            {
+                ChangeColorToPlayerChoice();
+            }
+            else
+            {
+                CurrentColor = CurrentPlayer.Hand[indexOfCard].CardColor;
+            }
+            DiscardPile.Add(CurrentPlayer.Hand[indexOfCard]);
+            CurrentPlayer.Hand.RemoveAt(indexOfCard);
+        }
+
+        private void HandleSpecial(Card card)
+        {
+            if (card.CardSymbol == Enum.GetName(Specials.Add2))
+            {
+                DrawCards(deck.CardDeck, ListOfPlayers[GetNextPlayerIndex()], 2);
+                Console.WriteLine($"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 2 cards");
+            }
+            if (card.CardSymbol == Enum.GetName(BlackSpecials.Add4))
+            {
+                SkipTurn = true;
+                DrawCards(deck.CardDeck, ListOfPlayers[GetNextPlayerIndex()], 4);
+                Console.WriteLine($"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 4 cards");
+            }
+            if (card.CardSymbol == Enum.GetName(Specials.Stop))
+            {
+                SkipTurn = true;
+                Console.WriteLine(SkipTurn);
+            }
+            if (card.CardSymbol == Enum.GetName(Specials.SwitchDirection))
+            {
+                Console.WriteLine("Direction has switched!");
+                PlayDirectionClockwise ^= true;
+            }
+        }
+
+        //need to format cw
+        public void ChangeColorToPlayerChoice()
+        {
+            int i = 1;
+            Console.WriteLine("Choose a color:");
+            foreach (Color color in Enum.GetValues(typeof(Color)))
+            {
+                if (color != Color.Black)
+                {
+                    Console.Write($"{i}: {color}");
+                    i++;
+                }
+            }
+            int answer = 0;
+            bool validInput = false;
+
+            while (answer <= 0 || answer > Enum.GetNames(typeof(Color)).Length || !validInput)
+            {
+                validInput = int.TryParse(Console.ReadLine(), out answer);
+            }
+            CurrentColor = (Color)answer;
         }
 
         private void handleDrawCard()
         {
-
             DrawCards(deck.CardDeck, CurrentPlayer, 1);
-            Console.WriteLine($"Uw getrokken kaart is {CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1]}");
+            Console.WriteLine($"Your drawn card is {CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1]}");
             if (IsCardPlayable(CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1]))
             {
-
                 char answer = ' ';
 
                 while (Char.ToUpper(answer) != 'Y' || Char.ToUpper(answer) != 'N')
                 {
                     Console.WriteLine("Deze kaart is speelbaar, wil je hem spelen? Y ? N");
                     answer = (char)Console.Read();
-                    
                 }
 
                 if (Char.ToUpper(answer) == 'Y')
                 {
-
                 }
-               
             }
-        }
-
-        private void ShowGameState()
-        {
-            Console.WriteLine($"{CurrentPlayer} is aan de beurt:");
-            Console.WriteLine($"Huidige kaart op tafel: {Environment.NewLine} --{DiscardPile[0]}--");
         }
 
         public bool IsCardPlayable(Card card)
@@ -224,64 +294,30 @@ namespace TrioProgrammingUno.Business
                 return true;
             }
             return false;
-        } 
-
-        private void ShowHand()
-        {
-            foreach (Card card in CurrentPlayer.Hand)
-            {
-                Console.Write(card.ToString() + ", " );
-            }
-        }
-
-        private bool CheckForEmptyHand() => CurrentPlayer.Hand.Count == 0;
-
-
-        public bool CheckForPlayableCard()
-        {
-
-            List<Card> playableCards = CurrentPlayer.Hand.Where(x => IsCardPlayable(x)).ToList();
-            if (playableCards.Count()!=0)
-            {
-                Console.WriteLine("uw speelbare kaarten zijn:");
-                foreach (Card card in playableCards)
-                {
-                    Console.WriteLine(card.ToString());
-                }
-                return true;
-            }
-            return false;
         }
 
         // refactor: enkel kiezen uit playable card list
-        // bugfix: kan alles inputten, geen foutmelding, ook juiste opties geen reactie.
-        private void SelectCard()
-        {
-            Console.WriteLine($"Kies een kaart 1 tot {CurrentPlayer.Hand.Count()} om te spelen, of trek een kaart met 0");
-            int choice;
-            bool validInput;
-            do
-            {
-            validInput = int.TryParse(Console.ReadLine(), out choice);
-            } while (validInput||0<=choice||choice >CurrentPlayer.Hand.Count());
 
-            if (choice == 0)
-            {
-              handleDrawCard();
-            }
-            else
-            {
-                PlayCard(choice - 1);
-            }
-
-        }
-        
         public void DrawCards(List<Card> cards, Player player, int amountOfCards)
         {
             for (int i = 0; i < amountOfCards; i++)
             {
                 player.Hand.Add(cards[0]);
                 cards.RemoveAt(0);
+            }
+        }
+
+        private bool CheckForEmptyHand() => CurrentPlayer.Hand.Count == 0;
+
+        public void Debugtime()
+        {
+            foreach (var player in ListOfPlayers)
+            {
+                Console.WriteLine(player.Name);
+                foreach (Card card in player.Hand)
+                {
+                    Console.WriteLine(card.CardSymbol + "" + card.CardColor);
+                }
             }
         }
     }

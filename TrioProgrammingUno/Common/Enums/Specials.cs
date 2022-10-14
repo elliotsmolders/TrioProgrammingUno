@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrioProgrammingUno.Common.Enums
+﻿namespace TrioProgrammingUno.Common.Enums
 {
     public enum Specials
     {
         Stop,
-        Add2
+        Add2,
+        SwitchDirection
     }
 }
