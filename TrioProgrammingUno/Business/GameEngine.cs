@@ -21,6 +21,7 @@ namespace TrioProgrammingUno.Business
         public string CurrentSymbol { get; set; }
         public bool PlayDirectionClockwise { get; set; }
         public bool SkipTurn { get; set; }
+        public string specialEffectMessage { get; set; }
 
         public void Init(MenuOptions choice)
         {
@@ -43,11 +44,15 @@ namespace TrioProgrammingUno.Business
         public void Run()
         {
             int indexOfCurrentPlayer = ListOfPlayers.IndexOf(CurrentPlayer); //startingplayer
-            while (true)
+            //refactor so game can continue after winner (winnerslist...)remove winner,  while condition wordt dan spelerlijst.count >1 etc
+            while (!CheckForEmptyHand())
             {
                 PlayerTurn(ListOfPlayers[indexOfCurrentPlayer]);
                 indexOfCurrentPlayer = GetNextPlayerIndex();
+                
+
             }
+            Console.WriteLine($"{CurrentPlayer.Name} has won the game");
         }
 
         public void DisplayMenu(MenuOptions choice)
@@ -120,24 +125,35 @@ namespace TrioProgrammingUno.Business
 
         private void PlayerTurn(Player currentPlayer)
         {
+            //kan in apparte functie
+            if(!(specialEffectMessage == ""))
+            {
+                Console.WriteLine(specialEffectMessage);
+                specialEffectMessage = "";
+            }
+            CurrentPlayer = currentPlayer;
             if (SkipTurn)
             {
                 Console.WriteLine($"{CurrentPlayer.Name} has been skipped");
                 SkipTurn = false;
                 return;
             }
-            Console.Clear();
-            CurrentPlayer = currentPlayer;
+            
             ShowGameState();
             ShowHand();
             if (CheckForPlayableCard())
             {
                 SelectCard();
-                CheckForEmptyHand();
             }
             else
             {
                 handleDrawCard();
+            }
+            Console.Clear();
+            //kan in apparte functie
+            if (currentPlayer.Hand.Count()==1)
+            {
+                Console.WriteLine($"{CurrentPlayer.Name}: UNO!");
             }
         }
 
@@ -173,7 +189,7 @@ namespace TrioProgrammingUno.Business
 
         private void SelectCard()
         {
-            Console.WriteLine($"Choose a card from 1 to {CurrentPlayer.Hand.Count()} to play, of trek een kaart met 0");
+            Console.WriteLine($"Choose a card from 1 to {CurrentPlayer.Hand.Count()} to play, or draw a card by pressing 0");
             int choice;
             bool validInput;
             do
@@ -224,22 +240,21 @@ namespace TrioProgrammingUno.Business
             if (card.CardSymbol == Enum.GetName(Specials.Add2))
             {
                 DrawCards(deck.CardDeck, ListOfPlayers[GetNextPlayerIndex()], 2);
-                Console.WriteLine($"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 2 cards");
+                specialEffectMessage = $"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 2 cards";
             }
             if (card.CardSymbol == Enum.GetName(BlackSpecials.Add4))
             {
                 SkipTurn = true;
                 DrawCards(deck.CardDeck, ListOfPlayers[GetNextPlayerIndex()], 4);
-                Console.WriteLine($"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 4 cards");
+                specialEffectMessage = $"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 4 cards";
             }
             if (card.CardSymbol == Enum.GetName(Specials.Stop))
             {
                 SkipTurn = true;
-                Console.WriteLine(SkipTurn);
             }
             if (card.CardSymbol == Enum.GetName(Specials.SwitchDirection))
             {
-                Console.WriteLine("Direction has switched!");
+                specialEffectMessage = "Direction has switched!";
                 PlayDirectionClockwise ^= true;
             }
         }
@@ -273,16 +288,17 @@ namespace TrioProgrammingUno.Business
             Console.WriteLine($"Your drawn card is {CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1]}");
             if (IsCardPlayable(CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1]))
             {
-                char answer = ' ';
+                string answer = "";
 
-                while (Char.ToUpper(answer) != 'Y' || Char.ToUpper(answer) != 'N')
+                while (answer?.ToUpper() != "Y" && answer?.ToUpper() != "Y")
                 {
                     Console.WriteLine("Deze kaart is speelbaar, wil je hem spelen? Y ? N");
-                    answer = (char)Console.Read();
+                    answer = Console.ReadLine();
                 }
 
-                if (Char.ToUpper(answer) == 'Y')
+                if (answer?.ToUpper() == "Y")
                 {
+                    PlayCard(CurrentPlayer.Hand.Count() - 1);
                 }
             }
         }
@@ -296,7 +312,6 @@ namespace TrioProgrammingUno.Business
             return false;
         }
 
-        // refactor: enkel kiezen uit playable card list
 
         public void DrawCards(List<Card> cards, Player player, int amountOfCards)
         {
@@ -322,3 +337,4 @@ namespace TrioProgrammingUno.Business
         }
     }
 }
+// todo: switchdirection, uitspelen, black card on start, init 1 per 1 uitdelen, indexing hand, whitespace/formatting console., bart:kleurtjes geven, ascii art...
