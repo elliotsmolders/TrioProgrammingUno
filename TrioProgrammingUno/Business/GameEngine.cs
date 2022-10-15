@@ -21,36 +21,41 @@ namespace TrioProgrammingUno.Business
         public string CurrentSymbol { get; set; }
         public bool PlayDirectionClockwise { get; set; }
         public bool SkipTurn { get; set; }
-        public string specialEffectMessage { get; set; }
+        public string SpecialEffectMessage { get; set; }
 
         public void Init(MenuOptions choice)
         {
             PlayDirectionClockwise = true;
             DisplayMenu(choice);
             deck.ShuffleDeck();
+
             foreach (Player player in ListOfPlayers)
             {
-                DrawCards(deck.CardDeck, player, AmountOfInitialCards);
+                DrawCards(player, AmountOfInitialCards);
             }
-            DiscardPile.Add(deck.CardDeck[0]);
-            CurrentColor = deck.CardDeck[0].CardColor;
-            CurrentSymbol = deck.CardDeck[0].CardSymbol;
-            deck.CardDeck.RemoveAt(0);
-            CurrentPlayer = ListOfPlayers[0]; // kan refactored zodat je startstpeler kan kiezen door prop
+
+            Card topCard = deck.CardDeck.First();
+            DiscardPile.Add(topCard);
+            CurrentColor = topCard.CardColor;
+            CurrentSymbol = topCard.CardSymbol;
+            deck.CardDeck.Remove(topCard);
+
+            CurrentPlayer = ListOfPlayers.First(); // kan refactored zodat je startstpeler kan kiezen door prop
 
             //Debugtime();
         }
 
         public void Run()
         {
-            int indexOfCurrentPlayer = ListOfPlayers.IndexOf(CurrentPlayer); //startingplayer
+            //startingplayer
             //refactor so game can continue after winner (winnerslist...)remove winner,  while condition wordt dan spelerlijst.count >1 etc
-            while (!CheckForEmptyHand())
+            int indexOfCurrentPlayer = ListOfPlayers.IndexOf(CurrentPlayer);
+            bool hasCurrentPlayerCards = CurrentPlayer.Hand.Any();
+
+            while (hasCurrentPlayerCards)
             {
                 PlayerTurn(ListOfPlayers[indexOfCurrentPlayer]);
                 indexOfCurrentPlayer = GetNextPlayerIndex();
-                
-
             }
             Console.WriteLine($"{CurrentPlayer.Name} has won the game");
         }
@@ -71,30 +76,25 @@ namespace TrioProgrammingUno.Business
 
         private int GetNextPlayerIndex()
         {
-            int indexOfPlayer = ListOfPlayers.IndexOf(CurrentPlayer);
+            int currentPlayerIndex = ListOfPlayers.IndexOf(CurrentPlayer);
+            int lastPlayerIndex = ListOfPlayers.Count - 1;
+
             if (PlayDirectionClockwise)
             {
-                if (indexOfPlayer < (ListOfPlayers.Count - 1))
+                if (currentPlayerIndex == lastPlayerIndex)
                 {
-                    indexOfPlayer++;
+                    return 0;
                 }
-                else
-                {
-                    indexOfPlayer = 0;
-                }
+                return currentPlayerIndex + 1;
             }
             else
             {
-                if (indexOfPlayer != 0)
+                if (currentPlayerIndex == 0)
                 {
-                    indexOfPlayer--;
+                    return lastPlayerIndex;
                 }
-                else
-                {
-                    indexOfPlayer = ListOfPlayers.Count() - 1;
-                }
+                return currentPlayerIndex - 1;
             }
-            return indexOfPlayer;
         }
 
         //TODO: Dus, refactor = guard steken in property setter.
@@ -126,10 +126,10 @@ namespace TrioProgrammingUno.Business
         private void PlayerTurn(Player currentPlayer)
         {
             //kan in apparte functie
-            if(!(specialEffectMessage == ""))
+            if (!(SpecialEffectMessage == ""))
             {
-                Console.WriteLine(specialEffectMessage);
-                specialEffectMessage = "";
+                Console.WriteLine(SpecialEffectMessage);
+                SpecialEffectMessage = "";
             }
             CurrentPlayer = currentPlayer;
             if (SkipTurn)
@@ -138,7 +138,7 @@ namespace TrioProgrammingUno.Business
                 SkipTurn = false;
                 return;
             }
-            
+
             ShowGameState();
             ShowHand();
             if (CheckForPlayableCard())
@@ -147,11 +147,11 @@ namespace TrioProgrammingUno.Business
             }
             else
             {
-                handleDrawCard();
+                HandleDrawCard();
             }
             Console.Clear();
             //kan in apparte functie
-            if (currentPlayer.Hand.Count()==1)
+            if (currentPlayer.Hand.Count() == 1)
             {
                 Console.WriteLine($"{CurrentPlayer.Name}: UNO!");
             }
@@ -199,67 +199,68 @@ namespace TrioProgrammingUno.Business
 
             if (choice == 0)
             {
-                handleDrawCard();
+                HandleDrawCard();
                 return;
             }
-            else
+
+            var card = CurrentPlayer.Hand[choice - 1];
+            if (IsCardPlayable(card))
             {
-                if (IsCardPlayable(CurrentPlayer.Hand[choice - 1]))
-                {
-                    PlayCard(choice - 1);
-                    return;
-                }
-                SelectCard();
-                Console.Clear();
-                ShowGameState();
-                ShowHand();
+                PlayCard(card);
                 return;
             }
+
+            SelectCard();
+            Console.Clear();
+            ShowGameState();
+            ShowHand();
         }
 
-        private void PlayCard(int indexOfCard)
+        private void PlayCard(Card card)
         {
-            HandleSpecial(CurrentPlayer.Hand[indexOfCard]);
-            Console.WriteLine($" {CurrentPlayer.Name} has played {CurrentPlayer.Hand[indexOfCard]}");
-            CurrentSymbol = CurrentPlayer.Hand[indexOfCard].CardSymbol;
+            HandleSpecial(card);
+            Console.WriteLine($" {CurrentPlayer.Name} has played {card}");
+            CurrentSymbol = card.CardSymbol;
             //card effect?
-            if (CurrentPlayer.Hand[indexOfCard].CardColor == Color.Black)
+            if (card.CardColor == Color.Black)
             {
                 ChangeColorToPlayerChoice();
             }
             else
             {
-                CurrentColor = CurrentPlayer.Hand[indexOfCard].CardColor;
+                CurrentColor = card.CardColor;
             }
-            DiscardPile.Add(CurrentPlayer.Hand[indexOfCard]);
-            CurrentPlayer.Hand.RemoveAt(indexOfCard);
+            DiscardPile.Add(card);
+            CurrentPlayer.Hand.Remove(card);
         }
 
         private void HandleSpecial(Card card)
         {
-            if (card.CardSymbol == Enum.GetName(Specials.Add2))
+            if (card.CardSymbol == Specials.Add2.ToString())
             {
-                DrawCards(deck.CardDeck, ListOfPlayers[GetNextPlayerIndex()], 2);
-                specialEffectMessage = $"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 2 cards";
+                DrawCards(ListOfPlayers[GetNextPlayerIndex()], 2);
+                SpecialEffectMessage = $"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 2 cards";
             }
-            if (card.CardSymbol == Enum.GetName(BlackSpecials.Add4))
+            if (card.CardSymbol == BlackSpecials.Add4.ToString())
             {
                 SkipTurn = true;
-                DrawCards(deck.CardDeck, ListOfPlayers[GetNextPlayerIndex()], 4);
-                specialEffectMessage = $"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 4 cards";
+                DrawCards(ListOfPlayers[GetNextPlayerIndex()], 4);
+                SpecialEffectMessage = $"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 4 cards";
             }
-            if (card.CardSymbol == Enum.GetName(Specials.Stop))
+            if (card.CardSymbol == Specials.Stop.ToString())
             {
                 SkipTurn = true;
             }
-            if (card.CardSymbol == Enum.GetName(Specials.SwitchDirection))
+            if (card.CardSymbol == Specials.SwitchDirection.ToString())
             {
-                specialEffectMessage = "Direction has switched!";
-                PlayDirectionClockwise ^= true;
+                SpecialEffectMessage = "Direction has switched!";
+                PlayDirectionClockwise = !PlayDirectionClockwise;
             }
         }
 
-        //need to format cw
+        /// <summary>
+        /// need to format cw
+        /// </summary>
         public void ChangeColorToPlayerChoice()
         {
             int i = 1;
@@ -282,47 +283,43 @@ namespace TrioProgrammingUno.Business
             CurrentColor = (Color)answer;
         }
 
-        private void handleDrawCard()
+        private void HandleDrawCard()
         {
-            DrawCards(deck.CardDeck, CurrentPlayer, 1);
-            Console.WriteLine($"Your drawn card is {CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1]}");
-            if (IsCardPlayable(CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1]))
-            {
-                string answer = "";
+            DrawCards(CurrentPlayer, 1);
 
-                while (answer?.ToUpper() != "Y" && answer?.ToUpper() != "Y")
+            var card = CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1];
+            Console.WriteLine($"Your drawn card is {card}");
+            if (IsCardPlayable(card))
+            {
+                string answer = null!;
+
+                while (!string.Equals(answer, "Y", StringComparison.OrdinalIgnoreCase) && !string.Equals(answer, "N", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("Deze kaart is speelbaar, wil je hem spelen? Y ? N");
+                    Console.WriteLine("This card is playable. Do you wish to play? Y / N");
                     answer = Console.ReadLine();
                 }
 
-                if (answer?.ToUpper() == "Y")
+                if (!string.Equals(answer, "Y", StringComparison.OrdinalIgnoreCase))
                 {
-                    PlayCard(CurrentPlayer.Hand.Count() - 1);
+                    PlayCard(card);
                 }
             }
         }
 
         public bool IsCardPlayable(Card card)
         {
-            if (card.CardSymbol == CurrentSymbol || card.CardColor == CurrentColor || card.CardColor == Color.Black)
-            {
-                return true;
-            }
-            return false;
+            return card.CardSymbol == CurrentSymbol || card.CardColor == CurrentColor || card.CardColor == Color.Black;
         }
 
-
-        public void DrawCards(List<Card> cards, Player player, int amountOfCards)
+        private void DrawCards(Player player, int amountOfCards)
         {
-            for (int i = 0; i < amountOfCards; i++)
+            for (var i = 0; i < amountOfCards; i++)
             {
-                player.Hand.Add(cards[0]);
-                cards.RemoveAt(0);
+                Card card = deck.CardDeck.First();
+                player.Hand.Add(card);
+                deck.CardDeck.Remove(card);
             }
         }
-
-        private bool CheckForEmptyHand() => CurrentPlayer.Hand.Count == 0;
 
         public void Debugtime()
         {
@@ -331,10 +328,11 @@ namespace TrioProgrammingUno.Business
                 Console.WriteLine(player.Name);
                 foreach (Card card in player.Hand)
                 {
-                    Console.WriteLine(card.CardSymbol + "" + card.CardColor);
+                    Console.WriteLine($"{card.CardSymbol} {card.CardColor}");
                 }
             }
         }
     }
 }
+
 // todo: switchdirection, uitspelen, black card on start, init 1 per 1 uitdelen, indexing hand, whitespace/formatting console., bart:kleurtjes geven, ascii art...
