@@ -1,4 +1,5 @@
-﻿using TrioProgrammingUno.Common.Enums;
+﻿using TrioProgrammingUno.Common;
+using TrioProgrammingUno.Common.Enums;
 
 namespace TrioProgrammingUno.Business
 {
@@ -10,6 +11,8 @@ namespace TrioProgrammingUno.Business
         {
             this.deck = deck;
         }
+
+        private Messages _message = new();
 
         public Player CurrentPlayer { get; set; }
 
@@ -57,7 +60,7 @@ namespace TrioProgrammingUno.Business
                 PlayerTurn(ListOfPlayers[indexOfCurrentPlayer]);
                 indexOfCurrentPlayer = GetNextPlayerIndex();
             }
-            Console.WriteLine($"{CurrentPlayer.Name} has won the game");
+            _message.WonTheGame(CurrentPlayer.Name);
         }
 
         public void DisplayMenu(MenuOptions choice)
@@ -65,7 +68,7 @@ namespace TrioProgrammingUno.Business
             switch (choice)
             {
                 case MenuOptions.AmountOfPlayers:
-                    PlayerAmount = AskForPlayers();
+                    PlayerAmount = _message.AskForPlayers();
                     MakePlayers();
                     break;
 
@@ -97,27 +100,11 @@ namespace TrioProgrammingUno.Business
             }
         }
 
-        //TODO: Dus, refactor = guard steken in property setter.
-        private int AskForPlayers()
-        {
-            int players = 0;
-            bool validInput = false;
-            Console.WriteLine("Choose 2 to 4 players");
-            validInput = int.TryParse(Console.ReadLine(), out players);
-
-            if (players <= 1 || players > 4 && validInput == false)
-            {
-                Console.WriteLine("Please enter a valid input");
-                return AskForPlayers();
-            }
-            return players;
-        }
-
         private void MakePlayers()
         {
             for (int i = 0; i < PlayerAmount; i++)
             {
-                Console.WriteLine($"Enter player {i + 1}'s name:");
+                _message.WriteMessage($"Enter player {i + 1}'s name:");
                 Player player = new(Console.ReadLine());
                 ListOfPlayers.Add(player);
             }
@@ -126,22 +113,23 @@ namespace TrioProgrammingUno.Business
         private void PlayerTurn(Player currentPlayer)
         {
             //kan in apparte functie
-            if (!(SpecialEffectMessage == ""))
+            if (!(SpecialEffectMessage == null))
             {
-                Console.WriteLine(SpecialEffectMessage);
-                SpecialEffectMessage = "";
+                _message.WriteMessage(SpecialEffectMessage);
+                SpecialEffectMessage = null!;
             }
             CurrentPlayer = currentPlayer;
             if (SkipTurn)
             {
-                Console.WriteLine($"{CurrentPlayer.Name} has been skipped");
+                _message.WriteMessage($"{CurrentPlayer.Name} has been skipped");
                 SkipTurn = false;
                 return;
             }
 
-            ShowGameState();
-            ShowHand();
-            if (CheckForPlayableCard())
+            _message.ShowGameState(CurrentPlayer.Name, CurrentSymbol, CurrentColor.ToString());
+            List<Card> playableCards = CurrentPlayer.Hand.Where(x => x.CardSymbol == CurrentSymbol || x.CardColor == CurrentColor || x.CardColor == Color.Black).ToList();
+            _message.ShowHand(CurrentPlayer.Hand, playableCards);
+            if (playableCards.Any())
             {
                 SelectCard();
             }
@@ -151,45 +139,15 @@ namespace TrioProgrammingUno.Business
             }
             Console.Clear();
             //kan in apparte functie
-            if (currentPlayer.Hand.Count() == 1)
+            if (currentPlayer.Hand.Count() == (int)Specials.Uno)
             {
-                Console.WriteLine($"{CurrentPlayer.Name}: UNO!");
+                _message.WriteMessage($"{CurrentPlayer.Name}: UNO!");
             }
-        }
-
-        private void ShowGameState()
-        {
-            Console.WriteLine($"It's {CurrentPlayer.Name} turn:");
-            Console.WriteLine($"Current card on the table: {Environment.NewLine} =*{CurrentSymbol}|{CurrentColor}*=");
-        }
-
-        private void ShowHand()
-        {
-            foreach (Card card in CurrentPlayer.Hand)
-            {
-                Console.Write(card.ToString() + ", ");
-            }
-        }
-
-        public bool CheckForPlayableCard()
-        {
-            List<Card> playableCards = CurrentPlayer.Hand.Where(x => IsCardPlayable(x)).ToList();
-            if (playableCards.Count() != 0)
-            {
-                Console.WriteLine("Your playable cards are:");
-                foreach (Card card in playableCards)
-                {
-                    Console.WriteLine(card.ToString());
-                }
-                return true;
-            }
-            Console.WriteLine("No playable card in your hand!");
-            return false;
         }
 
         private void SelectCard()
         {
-            Console.WriteLine($"Choose a card from 1 to {CurrentPlayer.Hand.Count()} to play, or draw a card by pressing 0");
+            _message.WriteMessage($"Choose a card from 1 to {CurrentPlayer.Hand.Count()} to play, or draw a card by pressing 0");
             int choice;
             bool validInput;
             do
@@ -212,14 +170,12 @@ namespace TrioProgrammingUno.Business
 
             SelectCard();
             Console.Clear();
-            ShowGameState();
-            ShowHand();
         }
 
         private void PlayCard(Card card)
         {
             HandleSpecial(card);
-            Console.WriteLine($" {CurrentPlayer.Name} has played {card}");
+            _message.WriteMessage($" {CurrentPlayer.Name} has played {card}");
             CurrentSymbol = card.CardSymbol;
             //card effect?
             if (card.CardColor == Color.Black)
@@ -238,13 +194,13 @@ namespace TrioProgrammingUno.Business
         {
             if (card.CardSymbol == Specials.Add2.ToString())
             {
-                DrawCards(ListOfPlayers[GetNextPlayerIndex()], 2);
+                DrawCards(ListOfPlayers[GetNextPlayerIndex()], (int)Specials.Add2);
                 SpecialEffectMessage = $"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 2 cards";
             }
             if (card.CardSymbol == BlackSpecials.Add4.ToString())
             {
                 SkipTurn = true;
-                DrawCards(ListOfPlayers[GetNextPlayerIndex()], 4);
+                DrawCards(ListOfPlayers[GetNextPlayerIndex()], (int)BlackSpecials.Add4);
                 SpecialEffectMessage = $"{ListOfPlayers[GetNextPlayerIndex()].Name} draws 4 cards";
             }
             if (card.CardSymbol == Specials.Stop.ToString())
@@ -264,12 +220,12 @@ namespace TrioProgrammingUno.Business
         public void ChangeColorToPlayerChoice()
         {
             int i = 1;
-            Console.WriteLine("Choose a color:");
+            _message.WriteMessage("Choose a color:");
             foreach (Color color in Enum.GetValues(typeof(Color)))
             {
                 if (color != Color.Black)
                 {
-                    Console.Write($"{i}: {color}");
+                    _message.WriteMessage($"{i}: {color}");
                     i++;
                 }
             }
@@ -288,14 +244,14 @@ namespace TrioProgrammingUno.Business
             DrawCards(CurrentPlayer, 1);
 
             var card = CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1];
-            Console.WriteLine($"Your drawn card is {card}");
+            _message.WriteMessage($"Your drawn card is {card}");
             if (IsCardPlayable(card))
             {
                 string answer = null!;
 
                 while (!string.Equals(answer, "Y", StringComparison.OrdinalIgnoreCase) && !string.Equals(answer, "N", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("This card is playable. Do you wish to play? Y / N");
+                    _message.WriteMessage("This card is playable. Do you wish to play? Y / N");
                     answer = Console.ReadLine();
                 }
 
@@ -325,10 +281,10 @@ namespace TrioProgrammingUno.Business
         {
             foreach (var player in ListOfPlayers)
             {
-                Console.WriteLine(player.Name);
+                _message.WriteMessage(player.Name);
                 foreach (Card card in player.Hand)
                 {
-                    Console.WriteLine($"{card.CardSymbol} {card.CardColor}");
+                    _message.WriteMessage($"{card.CardSymbol} {card.CardColor}");
                 }
             }
         }

@@ -26,7 +26,10 @@ namespace TrioProgrammingUno.Business
                 {
                     foreach (Specials special in Enum.GetValues(typeof(Specials)))
                     {
-                        CardDeck.Add(new Card(special.ToString(), color));
+                        if (special != Specials.Uno)
+                        {
+                            CardDeck.Add(new Card(special.ToString(), color));
+                        }
                     }
                 }
             }

@@ -2,7 +2,7 @@
 {
     public enum BlackSpecials
     {
-        Add4,
+        Add4 = 4,
         ChangeColor
     }
 }

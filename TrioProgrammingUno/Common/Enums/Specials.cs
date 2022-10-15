@@ -3,7 +3,8 @@
     public enum Specials
     {
         Stop,
-        Add2,
+        Uno,
+        Add2 = 2,
         SwitchDirection
     }
 }
