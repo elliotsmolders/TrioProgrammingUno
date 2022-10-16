@@ -13,14 +13,37 @@ namespace TrioProgrammingUno.Common
             Console.WriteLine($"{name} has won the game");
         }
 
+        //public int AskForPlayers()
+        //{
+        //    int players = 0;
+        //    bool validInput = false;
+        //    Console.WriteLine("Choose 2 to 4 players");
+        //    validInput = int.TryParse(Console.ReadLine(), out players);
+
+        //    if (players <= 1 || players > 4 || !validInput)
+        //    {
+        //        Console.ForegroundColor = ConsoleColor.Red;
+        //        Console.WriteLine("Please enter a valid input");
+        //        Console.ForegroundColor = ConsoleColor.White;
+        //        return AskForPlayers();
+        //    }
+        //    return players;
+        //}
+
+        private int tellerke = 0;
+
         public int AskForPlayers()
         {
+            tellerke++; //15917
+
             int players = 0;
+            var name = "test";
+
             bool validInput = false;
             Console.WriteLine("Choose 2 to 4 players");
-            validInput = int.TryParse(Console.ReadLine(), out players);
+            validInput = false;
 
-            if (players <= 1 || players > 4 || validInput == false)
+            if (players <= 1 || players > 4 || !validInput)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Please enter a valid input");
@@ -30,45 +53,25 @@ namespace TrioProgrammingUno.Common
             return players;
         }
 
-        public void WriteMessage(string message)
+        public void WriteLine(string message, ConsoleColor color = ConsoleColor.White)
         {
+            Console.ForegroundColor = color == ConsoleColor.Black ? ConsoleColor.Cyan : color;
             Console.WriteLine(message);
         }
 
-        public void WriteMessage(string message, ConsoleColor color)
+        public void Write(string message, ConsoleColor color)
         {
-            if (color == ConsoleColor.Black)
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-            }
-            else
-            {
-                Console.ForegroundColor = color;
-            }
-            Console.WriteLine(message);
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-
-        public void WriteMessage(string message, ConsoleColor color, bool asLine)
-        {
-            if (color == ConsoleColor.Black)
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-            }
-            else
-            {
-                Console.ForegroundColor = color;
-            }
+            Console.ForegroundColor = color == ConsoleColor.Black ? ConsoleColor.Cyan : color;
             Console.Write(message);
             Console.ForegroundColor = ConsoleColor.White;
         }
 
         public void ShowGameState(string name, string symbol, string color)
         {
-            WriteMessage($"It's {name} turn:", ConsoleColor.Cyan);
-            WriteMessage($"Current card on the table: {Environment.NewLine}", ConsoleColor.Gray);
-            WriteMessage($"=* {symbol} |", (ConsoleColor)Enum.Parse(typeof(ConsoleColor), color), true);
-            WriteMessage($" {color} *=", (ConsoleColor)Enum.Parse(typeof(ConsoleColor), color), true);
+            WriteLine($"It's {name} turn:", ConsoleColor.Cyan);
+            WriteLine($"Current card on the table: {Environment.NewLine}", ConsoleColor.Gray);
+            Write($"=* {symbol} |", (ConsoleColor)Enum.Parse(typeof(ConsoleColor), color));
+            Write($" {color} *=", (ConsoleColor)Enum.Parse(typeof(ConsoleColor), color));
             Console.WriteLine($"{Environment.NewLine}");
         }
 
@@ -77,11 +80,11 @@ namespace TrioProgrammingUno.Common
             int i = countFromOne;
             foreach (Card card in hand)
             {
-                WriteMessage($"[{i}]", ConsoleColor.Magenta, true);
-                WriteMessage($"  {card}", (ConsoleColor)Enum.Parse(typeof(ConsoleColor), card.CardColor.ToString()), true);
+                Write($"[{i}]", ConsoleColor.Magenta);
+                Write($"  {card}", (ConsoleColor)Enum.Parse(typeof(ConsoleColor), card.CardColor.ToString()));
                 if (playableCards.Contains(card))
                 {
-                    WriteMessage(" ==> Playable !", ConsoleColor.DarkYellow, true);
+                    Write(" ==> Playable !", ConsoleColor.DarkYellow);
                 }
                 i++;
                 Console.WriteLine();

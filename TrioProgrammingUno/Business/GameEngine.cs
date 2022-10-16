@@ -104,7 +104,7 @@ namespace TrioProgrammingUno.Business
         {
             for (int i = 0; i < PlayerAmount; i++)
             {
-                _message.WriteMessage($"Enter player {i + 1}'s name:");
+                _message.WriteLine($"Enter player {i + 1}'s name:");
                 Player player = new(Console.ReadLine());
                 ListOfPlayers.Add(player);
             }
@@ -115,13 +115,13 @@ namespace TrioProgrammingUno.Business
             //kan in apparte functie
             if (!(SpecialEffectMessage == null))
             {
-                _message.WriteMessage(SpecialEffectMessage);
+                _message.WriteLine(SpecialEffectMessage);
                 SpecialEffectMessage = null!;
             }
             CurrentPlayer = currentPlayer;
             if (SkipTurn)
             {
-                _message.WriteMessage($"{CurrentPlayer.Name} has been skipped");
+                _message.WriteLine($"{CurrentPlayer.Name} has been skipped");
                 SkipTurn = false;
                 return;
             }
@@ -141,13 +141,13 @@ namespace TrioProgrammingUno.Business
             //kan in apparte functie
             if (currentPlayer.Hand.Count() == (int)Specials.Uno)
             {
-                _message.WriteMessage($"{CurrentPlayer.Name}: UNO!");
+                _message.WriteLine($"{CurrentPlayer.Name}: UNO!");
             }
         }
 
         private void SelectCard()
         {
-            _message.WriteMessage($"Choose a card from 1 to {CurrentPlayer.Hand.Count()} to play, or draw a card by pressing 0");
+            _message.WriteLine($"Choose a card from 1 to {CurrentPlayer.Hand.Count()} to play, or draw a card by pressing 0");
             int choice;
             bool validInput;
             do
@@ -175,7 +175,7 @@ namespace TrioProgrammingUno.Business
         private void PlayCard(Card card)
         {
             HandleSpecial(card);
-            _message.WriteMessage($" {CurrentPlayer.Name} has played {card}");
+            _message.WriteLine($" {CurrentPlayer.Name} has played {card}");
             CurrentSymbol = card.CardSymbol;
             //card effect?
             if (card.CardColor == Color.Black)
@@ -220,12 +220,12 @@ namespace TrioProgrammingUno.Business
         public void ChangeColorToPlayerChoice()
         {
             int i = 1;
-            _message.WriteMessage("Choose a color:");
+            _message.WriteLine("Choose a color:");
             foreach (Color color in Enum.GetValues(typeof(Color)))
             {
                 if (color != Color.Black)
                 {
-                    _message.WriteMessage($"{i}: {color}");
+                    _message.WriteLine($"{i}: {color}");
                     i++;
                 }
             }
@@ -244,14 +244,14 @@ namespace TrioProgrammingUno.Business
             DrawCards(CurrentPlayer, 1);
 
             var card = CurrentPlayer.Hand[CurrentPlayer.Hand.Count() - 1];
-            _message.WriteMessage($"Your drawn card is {card}");
+            _message.WriteLine($"Your drawn card is {card}");
             if (IsCardPlayable(card))
             {
                 string answer = null!;
 
                 while (!string.Equals(answer, "Y", StringComparison.OrdinalIgnoreCase) && !string.Equals(answer, "N", StringComparison.OrdinalIgnoreCase))
                 {
-                    _message.WriteMessage("This card is playable. Do you wish to play? Y / N");
+                    _message.WriteLine("This card is playable. Do you wish to play? Y / N");
                     answer = Console.ReadLine();
                 }
 
@@ -281,10 +281,10 @@ namespace TrioProgrammingUno.Business
         {
             foreach (var player in ListOfPlayers)
             {
-                _message.WriteMessage(player.Name);
+                _message.WriteLine(player.Name);
                 foreach (Card card in player.Hand)
                 {
-                    _message.WriteMessage($"{card.CardSymbol} {card.CardColor}");
+                    _message.WriteLine($"{card.CardSymbol} {card.CardColor}");
                 }
             }
         }
