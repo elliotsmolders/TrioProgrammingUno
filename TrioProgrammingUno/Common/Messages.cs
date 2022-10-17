@@ -6,52 +6,29 @@ namespace TrioProgrammingUno.Common
 {
     public class Messages
     {
-        private const int countFromOne = 1;
-
         public void WonTheGame(string name)
         {
             Console.WriteLine($"{name} has won the game");
         }
 
-        //public int AskForPlayers()
-        //{
-        //    int players = 0;
-        //    bool validInput = false;
-        //    Console.WriteLine("Choose 2 to 4 players");
-        //    validInput = int.TryParse(Console.ReadLine(), out players);
-
-        //    if (players <= 1 || players > 4 || !validInput)
-        //    {
-        //        Console.ForegroundColor = ConsoleColor.Red;
-        //        Console.WriteLine("Please enter a valid input");
-        //        Console.ForegroundColor = ConsoleColor.White;
-        //        return AskForPlayers();
-        //    }
-        //    return players;
-        //}
-
-        private int tellerke = 0;
-
         public int AskForPlayers()
         {
-            tellerke++; //15917
-
             int players = 0;
-            var name = "test";
-
             bool validInput = false;
             Console.WriteLine("Choose 2 to 4 players");
-            validInput = false;
+            validInput = int.TryParse(Console.ReadLine(), out players);
 
-            if (players <= 1 || players > 4 || !validInput)
+            while (players <= 1 || players > 4 || !validInput)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Please enter a valid input");
                 Console.ForegroundColor = ConsoleColor.White;
-                return AskForPlayers();
+                validInput = int.TryParse(Console.ReadLine(), out players);
             }
             return players;
         }
+
+        private int tellerke = 0;
 
         public void WriteLine(string message, ConsoleColor color = ConsoleColor.White)
         {
@@ -77,7 +54,7 @@ namespace TrioProgrammingUno.Common
 
         public void ShowHand(List<Card> hand, List<Card> playableCards)
         {
-            int i = countFromOne;
+            int i = 1;
             foreach (Card card in hand)
             {
                 Write($"[{i}]", ConsoleColor.Magenta);
