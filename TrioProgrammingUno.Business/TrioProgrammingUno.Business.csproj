@@ -7,8 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interface\" />
-    <Folder Include="Base\" />
+    <Compile Remove="Base\**" />
+    <Compile Remove="Interface\**" />
+    <EmbeddedResource Remove="Base\**" />
+    <EmbeddedResource Remove="Interface\**" />
+    <None Remove="Base\**" />
+    <None Remove="Interface\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TrioProgrammingUno.Common\TrioProgrammingUno.Common.csproj" />
   </ItemGroup>
 
 </Project>

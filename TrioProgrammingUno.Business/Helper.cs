@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrioProgrammingUno.Common.Enums
+namespace TrioProgrammingUno.Business
 {
-    public enum MenuOptions
+    public class Helper
     {
-        AmountOfPlayers,
-        PlayerNames
+
+
+
     }
 }

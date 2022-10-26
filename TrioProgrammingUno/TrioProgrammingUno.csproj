@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TrioProgrammingUno.Business\TrioProgrammingUno.Business.csproj" />
+    <ProjectReference Include="..\TrioProgrammingUno.Common\TrioProgrammingUno.Common.csproj" />
+  </ItemGroup>
+
 </Project>
