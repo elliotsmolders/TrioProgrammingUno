@@ -52,7 +52,7 @@ namespace TrioProgrammingUno.Common
             Console.WriteLine($"{Environment.NewLine}");
         }
 
-        public void ShowHand(List<Card> hand, List<Card> playableCards)
+        public void ShowHand(IList<Card> hand, IList<Card> playableCards)
         {
             int i = 1;
             foreach (Card card in hand)

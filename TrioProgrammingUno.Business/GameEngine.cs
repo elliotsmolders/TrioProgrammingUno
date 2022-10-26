@@ -125,7 +125,7 @@ namespace TrioProgrammingUno.Business
             }
 
             message.ShowGameState(CurrentPlayer.Name, CurrentSymbol, CurrentColor.ToString());
-            List<Card> playableCards = CurrentPlayer.Hand.Where(x => x.CardSymbol == CurrentSymbol || x.CardColor == CurrentColor || x.CardColor == Color.Black).ToList();
+            IList<Card> playableCards = CurrentPlayer.Hand.Where(x => x.CardSymbol == CurrentSymbol || x.CardColor == CurrentColor || x.CardColor == Color.Black).ToList();
             message.ShowHand(CurrentPlayer.Hand, playableCards);
             if (playableCards.Any())
             {
